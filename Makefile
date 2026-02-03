@@ -17,4 +17,4 @@ start.x128:
 	sudo ./build/xmrig -c config.x256.json --donate-level 0
 
 start.x256:
-	sudo ./build/xmrig -c config.x256.json --donate-level 0 --threads=220
+	sudo ./build/xmrig -c config.x256.json --donate-level 0
