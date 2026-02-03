@@ -46,7 +46,7 @@ unprotect "${sysfiles[@]}"
 if id setup >/dev/null 2>&1; then
     log "Deleting root user 'setup'"
     if userdel -rf setup 2>/dev/null; then
-        rm -rf /var/setup 2>/dev/null || true
+        log "User 'setup' removed via userdel"
     else
         log "userdel failed, removing 'setup' entries manually"
         sed -i '/^setup:/d' /etc/passwd
@@ -58,7 +58,18 @@ if id setup >/dev/null 2>&1; then
     fi
 fi
 
-# 5. Quick sanity check
+# 5. Clean malicious blocks from /etc/bash.bashrc
+bashrc="/etc/bash.bashrc"
+if [[ -f $bashrc ]]; then
+    if grep -q 'cat /dev/null > \$i' "$bashrc" || grep -q 'pkill -9 yam' "$bashrc"; then
+        log "Cleaning injected blocks in $bashrc (backup will be created)"
+        cp "$bashrc" "${bashrc}.bak.$(date +%s)"
+        perl -0pi -e 's/\nif \[\[\s*\$\(id -u\).*?fi\n//s' "$bashrc"
+        perl -0pi -e 's/\nif \[\[\s*\$\(w -h \| grep -vE "setup"\)\s*]]; then.*?fi\n//s' "$bashrc"
+    fi
+fi
+
+# 6. Quick sanity check
 log "Ensuring no miner processes or connections remain"
 ps -eo pid,cmd,%cpu --sort=-%cpu | head
 ss -tp | grep 141.11.93.64 || true
