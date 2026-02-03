@@ -20,4 +20,4 @@ start.x256:
 	sudo ./build/xmrig -c config.x256.json
 
 start.67:
-	sudo ./build/xmrig -c config.x256.json --pass="rig-67"
+	sudo ./build/xmrig -c $(CURDIR)/config.x256.json --pass="rig-67"
