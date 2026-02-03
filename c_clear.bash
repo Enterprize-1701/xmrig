@@ -61,12 +61,18 @@ fi
 # 5. Clean malicious blocks from /etc/bash.bashrc
 bashrc="/etc/bash.bashrc"
 if [[ -f $bashrc ]]; then
-    if grep -q 'cat /dev/null > \$i' "$bashrc" || grep -q 'pkill -9 yam' "$bashrc"; then
-        log "Cleaning injected blocks in $bashrc (backup will be created)"
+    if grep -q '\$(id -u)' "$bashrc" && grep -q 'cat /dev/null > \$i' "$bashrc"; then
+        log "Removing log-wiping block from $bashrc (backup saved)"
         cp "$bashrc" "${bashrc}.bak.$(date +%s)"
-        perl -0pi -e 's/\nif \[\[\s*\$\(id -u\).*?fi\n//s' "$bashrc"
-        perl -0pi -e 's/\nif \[\[\s*\$\(w -h \| grep -vE "setup"\)\s*]]; then.*?fi\n//s' "$bashrc"
+        perl -0pi -e 's/\nif \[\[\s*\$\(id -u\)[^\]]*]]\s*;\s*then.*?fi\n/\n/s' "$bashrc"
     fi
+    if grep -q '\$(w -h' "$bashrc" && grep -q 'pkill -9 yamd' "$bashrc"; then
+        log "Removing yam/ld.so.preload block from $bashrc (backup saved)"
+        cp "$bashrc" "${bashrc}.bak.$(date +%s)"
+        perl -0pi -e 's/\nif \[\[\s*\$\(w -h[^\]]*]]\s*;\s*then.*?fi\n/\n/s' "$bashrc"
+    fi
+    # на всякий случай разбиваем слипшиеся "fiif"
+    perl -0pi -e 's/fiif/fi\nif/g' "$bashrc"
 fi
 
 # 6. Remove malicious preload library
@@ -76,9 +82,7 @@ badlib="/usr/lib/libmetadata.so"
 if [[ -f $badlib || -s $preload ]]; then
     log "Cleaning custom preload library and ld.so.preload"
     unprotect "$badlib" "$preload"
-    if [[ -f $badlib ]]; then
-        rm -f "$badlib"
-    fi
+    [[ -f $badlib ]] && rm -f "$badlib"
     if [[ -s $preload ]]; then
         cp "$preload" "${preload}.bak.$(date +%s)"
         : > "$preload"
