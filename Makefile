@@ -4,7 +4,7 @@ list:
 	@echo "Targets:"
 	@echo ""
 	@echo "  - 'start.local' > start local miner"
-	@echo "  - 'start.67' > start rig-67"
+	@echo "  - 'start' > start rig"
 
 start.local:
 	sudo ./build/xmrig -c config.json --threads=6
