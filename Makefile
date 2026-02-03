@@ -9,5 +9,5 @@ list:
 start.local:
 	sudo ./build/xmrig -c config.json --threads=6
 
-start.67:
+start:
 	sudo ./build/xmrig -c $(CURDIR)/config.x.json
