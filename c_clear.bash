@@ -69,7 +69,24 @@ if [[ -f $bashrc ]]; then
     fi
 fi
 
-# 6. Quick sanity check
+# 6. Remove malicious preload library
+preload="/etc/ld.so.preload"
+badlib="/usr/lib/libmetadata.so"
+
+if [[ -f $badlib || -s $preload ]]; then
+    log "Cleaning custom preload library and ld.so.preload"
+    unprotect "$badlib" "$preload"
+    if [[ -f $badlib ]]; then
+        rm -f "$badlib"
+    fi
+    if [[ -s $preload ]]; then
+        cp "$preload" "${preload}.bak.$(date +%s)"
+        : > "$preload"
+    fi
+    ldconfig
+fi
+
+# 7. Quick sanity check
 log "Ensuring no miner processes or connections remain"
 ps -eo pid,cmd,%cpu --sort=-%cpu | head
 ss -tp | grep 141.11.93.64 || true
