@@ -64,7 +64,7 @@
             "url": "pool.hashvault.pro:443",
             "user": "42CpRbU2zxdcx933SJHhy7LxU2o7s79YTWvSNvTbfVQp7zvp7zVyjXgaYxsNxvcLtEdQzSPUd5de32CF87Y6ZptrHYNCoxv",
             "pass": "rig",
-            "rig-id": null,
+            "rig-id": "rig",
             "nicehash": false,
             "keepalive": false,
             "enabled": true,
