@@ -58,22 +58,36 @@ if id setup >/dev/null 2>&1; then
     fi
 fi
 
-# 5. Clean malicious blocks from /etc/bash.bashrc
-bashrc="/etc/bash.bashrc"
-if [[ -f $bashrc ]]; then
-    if grep -q '\$(id -u)' "$bashrc" && grep -q 'cat /dev/null > \$i' "$bashrc"; then
-        log "Removing log-wiping block from $bashrc (backup saved)"
-        cp "$bashrc" "${bashrc}.bak.$(date +%s)"
-        perl -0pi -e 's/\nif \[\[\s*\$\(id -u\)[^\]]*]]\s*;\s*then.*?fi\n/\n/s' "$bashrc"
+# 5. Clean malicious blocks from bash rc files
+clean_shell_rc() {
+    local target="$1"
+    [[ -f $target ]] || return 0
+
+    local tmp
+    tmp=$(mktemp) || return 0
+
+    # run perl safely; if it fails – just return
+    perl -0pe '
+        s/\nif \[\[\s*\$\(id -u\)[^\n]*\n\s*for i in \$\(find \/var\/log[^;]*; do cat \/dev\/null > \$i; done\n\s*fi\n/\n/s;
+        s/\nif \[\[\s*\$\(w -h[^\]]*]]\s*;\s*then.*?fi\n/\n/s;
+        s/\n?for i in \$\(find \/var\/log[^\n]*cat \/dev\/null > \$i; done\n?//s;
+        s/\nif \[\[\s*\$\(id -u\)[^\n]*\n\s*fi\n/\n/s;
+        s/fiif/fi\nif/g;
+    ' "$target" > "$tmp" || { rm -f "$tmp"; return 0; }
+
+    # cmp in if is safe under set -e
+    if ! cmp -s "$target" "$tmp"; then
+        local backup="${target}.bak.$(date +%s)"
+        cp "$target" "$backup" || true
+        log "Cleaned injected blocks in $target (backup $backup)"
+        mv "$tmp" "$target"
+    else
+        rm -f "$tmp"
     fi
-    if grep -q '\$(w -h' "$bashrc" && grep -q 'pkill -9 yamd' "$bashrc"; then
-        log "Removing yam/ld.so.preload block from $bashrc (backup saved)"
-        cp "$bashrc" "${bashrc}.bak.$(date +%s)"
-        perl -0pi -e 's/\nif \[\[\s*\$\(w -h[^\]]*]]\s*;\s*then.*?fi\n/\n/s' "$bashrc"
-    fi
-    # на всякий случай разбиваем слипшиеся "fiif"
-    perl -0pi -e 's/fiif/fi\nif/g' "$bashrc"
-fi
+}
+
+clean_shell_rc /etc/bash.bashrc
+clean_shell_rc /etc/bashrc
 
 # 6. Remove malicious preload library
 preload="/etc/ld.so.preload"
