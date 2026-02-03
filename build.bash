@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Проверка, что мы в корне проекта
+# Make sure we are in the project root (CMakeLists.txt must exist)
 if [[ ! -f "CMakeLists.txt" ]]; then
-  echo "Ошибка: CMakeLists.txt не найден. Запустите скрипт из корня проекта."
+  echo "Error: CMakeLists.txt not found. Run this script from the project root."
   exit 1
 fi
 
-# Создаём/очищаем build каталог
+# Recreate clean build directory
 rm -rf build
 mkdir build
 cd build
 
-# Конфигурация и сборка
+# Configure and build
 cmake ..
 make -j"$(nproc)"
 
-echo "Готово. Бинарник: ./xmrig (в каталоге build)"
+echo "Done. Binary located in: ./build/xmrig"
