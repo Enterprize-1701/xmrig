@@ -10,4 +10,4 @@ start.local:
 	sudo ./build/xmrig -c config.json --threads=6
 
 start.67:
-	sudo ./build/xmrig -c $(CURDIR)/config.x.json --rig-id=rig-67
+	sudo ./build/xmrig -c $(CURDIR)/config.x.json
