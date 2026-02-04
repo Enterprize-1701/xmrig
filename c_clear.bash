@@ -105,10 +105,11 @@ if [[ -f $badlib || -s $preload ]]; then
 fi
 
 # 7. Cleanup Crontab file
+log "Cleanup Crontab file"
 CRONTAB_FILE="/etc/crontab"
 backup="${CRONTAB_FILE}.bak.$(date +%F_%H%M%S)"
 cp -a "$CRONTAB_FILE" "$backup"
-echo "Backup created: $backup"
+log "Backup created: $backup"
 tmp="$(mktemp)"
 awk '
   # удаляем строки, где одновременно встречается find /var/log и cat /dev/null
