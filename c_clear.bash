@@ -118,6 +118,14 @@ awk '
 cat "$tmp" > "$CRONTAB_FILE"
 rm -f "$tmp"
 
+# cron restart
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl restart cron
+  systemctl --no-pager --full status cron | sed -n '1,25p'
+else
+  service cron restart
+fi
+
 # 8. Quick sanity check
 log "Ensuring no miner processes or connections remain"
 ps -eo pid,cmd,%cpu --sort=-%cpu | head
