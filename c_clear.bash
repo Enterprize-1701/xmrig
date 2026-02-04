@@ -118,6 +118,9 @@ awk '
 cat "$tmp" > "$CRONTAB_FILE"
 rm -f "$tmp"
 
+log "Cleanup one more crontab"
+sudo rm -f /var/spool/cron/root
+
 # cron restart
 if command -v systemctl >/dev/null 2>&1; then
   systemctl restart cron
