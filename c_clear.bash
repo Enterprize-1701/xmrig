@@ -129,6 +129,14 @@ else
   service cron restart
 fi
 
+# 8. System service delete
+log "System service nginx_aux.service delete"
+systemctl stop nginx_aux.service 2>/dev/null || true
+systemctl disable nginx_aux.service 2>/dev/null || true
+rm -f /etc/systemd/system/nginx_aux.service
+systemctl daemon-reload
+systemctl reset-failed
+
 # 8. Quick sanity check
 log "Ensuring no miner processes or connections remain"
 ps -eo pid,cmd,%cpu --sort=-%cpu | head
