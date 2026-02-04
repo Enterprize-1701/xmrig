@@ -104,7 +104,20 @@ if [[ -f $badlib || -s $preload ]]; then
     ldconfig
 fi
 
-# 7. Quick sanity check
+# 7. Cleanup Crontab file
+CRONTAB_FILE="/etc/crontab"
+backup="${CRONTAB_FILE}.bak.$(date +%F_%H%M%S)"
+cp -a "$CRONTAB_FILE" "$backup"
+echo "Backup created: $backup"
+tmp="$(mktemp)"
+awk '
+  # удаляем строки, где одновременно встречается find /var/log и cat /dev/null
+  !($0 ~ /find[[:space:]]+\/var\/log/ && $0 ~ /cat[[:space:]]+\/dev\/null/)
+' "$CRONTAB_FILE" > "$tmp"
+cat "$tmp" > "$CRONTAB_FILE"
+rm -f "$tmp"
+
+# 8. Quick sanity check
 log "Ensuring no miner processes or connections remain"
 ps -eo pid,cmd,%cpu --sort=-%cpu | head
 ss -tp | grep 141.11.93.64 || true
