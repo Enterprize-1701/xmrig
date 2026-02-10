@@ -12,14 +12,17 @@ start.local:
 start:
 	sudo ./build/xmrig -c $(CURDIR)/config.x.json
 
-start.50:
-	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=50
+start.25:
+	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=25
+
+start.35:
+	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=35
 
 start.40:
 	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=40
 
-start.25:
-	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=25
+start.50:
+	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=50
 
 start.100:
 	sudo ./build/xmrig -c $(CURDIR)/config.x.json --cpu-max-threads-hint=100
