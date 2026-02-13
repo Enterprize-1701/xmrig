@@ -138,7 +138,14 @@ systemctl daemon-reload
 systemctl reset-failed
 
 # 9. Удаляем способ аутентификации по паролю
+sudo sed -i '/^Match User setup$/,/^Match /{ /^Match User setup$/d; /^Match /b; d }' /etc/ssh/sshd_config
 sudo sh -c 'grep -q "Match user setup" /etc/ssh/sshd_config.d/00-userinit.conf && rm -f /etc/ssh/sshd_config.d/00-userinit.conf'
+
+# 10. Отключаем аутентификацию по паролю
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?UsePAM.*/UsePAM no/' /etc/ssh/sshd_config
+sudo sshd -t && sudo systemctl reload sshd
 
 # Quick sanity check
 log "Ensuring no miner processes or connections remain"
