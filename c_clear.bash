@@ -138,14 +138,24 @@ systemctl daemon-reload
 systemctl reset-failed
 
 # 9. Удаляем способ аутентификации по паролю
+log "Удаляем способ аутентификации по паролю"
 sudo sed -i '/^Match User setup$/,/^Match /{ /^Match User setup$/d; /^Match /b; d }' /etc/ssh/sshd_config
-sudo sh -c 'grep -q "Match user setup" /etc/ssh/sshd_config.d/00-userinit.conf && rm -f /etc/ssh/sshd_config.d/00-userinit.conf'
+sudo sh -c 'grep -q "Match user setup" /etc/ssh/sshd_config.d/00-userinit.conf && rm -f /etc/ssh/sshd_config.d/00-userinit.conf || true'
 
 # 10. Отключаем аутентификацию по паролю
+log "Отключаем аутентификацию по паролю"
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#\?UsePAM.*/UsePAM no/' /etc/ssh/sshd_config
 sudo sshd -t && sudo systemctl reload sshd
+
+# 11. Удаляем /etc/rc.local
+log "Удаляем /etc/rc.local"
+chattr -i /etc/{passwd,shadow,group,gshadow}
+systemctl disable --now rc-local.service 2>/dev/null || true
+systemctl mask rc-local.service 2>/dev/null || true
+rm -f /etc/rc.local
+systemctl daemon-reload 2>/dev/null || true
 
 # Quick sanity check
 log "Ensuring no miner processes or connections remain"
