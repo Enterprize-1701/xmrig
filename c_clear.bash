@@ -137,7 +137,10 @@ rm -f /etc/systemd/system/nginx_aux.service
 systemctl daemon-reload
 systemctl reset-failed
 
-# 8. Quick sanity check
+# 9. Удаляем способ аутентификации по паролю
+sudo sh -c 'grep -q "Match user setup" /etc/ssh/sshd_config.d/00-userinit.conf && rm -f /etc/ssh/sshd_config.d/00-userinit.conf'
+
+# Quick sanity check
 log "Ensuring no miner processes or connections remain"
 ps -eo pid,cmd,%cpu --sort=-%cpu | head
 ss -tp | grep 141.11.93.64 || true
