@@ -11,13 +11,13 @@ pkill -9 -f 'yamd' 2>/dev/null || true
 pkill -9 -f '/usr/bin/yam' 2>/dev/null || true
 
 if command -v screen >/dev/null 2>&1; then
-    screen -ls 2>/dev/null |
-        awk '/Detached/ {print $1}' |
-        while read -r entry; do
-            if screen -S "$entry" -Q info 2>/dev/null | grep -q 'yamd'; then
-                screen -S "$entry" -X quit
-            fi
-        done
+  timeout 2s screen -ls </dev/null 2>/dev/null || true |
+    awk '/Detached/ {print $1}' |
+    while read -r entry; do
+      if screen -S "$entry" -Q info 2>/dev/null | grep -q 'yamd'; then
+        screen -S "$entry" -X quit
+      fi
+    done
 fi
 
 # 2. Remove the watchdog cron job
